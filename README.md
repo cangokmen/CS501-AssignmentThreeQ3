@@ -1,0 +1,1 @@
+This project implements a contact list in Jetpack Compose using LazyColumn with sticky headers, grouping contacts alphabetically and showing a floating "Scroll to Top" button after the 10th item. It includes at least 50 sample contacts, supports smooth scrolling with animateScrollToItem() and coroutines, and is uploaded to Git with a README.
