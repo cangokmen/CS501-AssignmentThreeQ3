@@ -35,10 +35,10 @@ import androidx.compose.ui.unit.sp
 import com.example.assignmentthreeq3.ui.theme.AssignmentThreeQ3Theme
 import kotlinx.coroutines.launch
 
-// Data class used for our contacts
+// Data class to represent a single contact.
 data class Contact(val name: String)
 
-// Function to populate sample contact data
+// Generates a sorted list of sample contacts.
 fun populateSampleContacts(): List<Contact> {
     val names = listOf(
         "Marsha Mcneil", "Jasper Crosby", "Angelica Meyer", "Francine Lewis", "Floyd Cain",
@@ -56,10 +56,11 @@ fun populateSampleContacts(): List<Contact> {
     return names.map { Contact(it) }.sortedBy { it.name }
 }
 
-// Main function
+// MainActivity is the app's entry point.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Populate the contact list and set the main content view.
         val contacts = populateSampleContacts()
         setContent {
             AssignmentThreeQ3Theme {
@@ -70,15 +71,21 @@ class MainActivity : ComponentActivity() {
 }
 
 
-// Used screen to use test it in preview
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * Displays a contact list with alphabetical sticky headers and a "scroll to top" button.
+ */
+@OptIn(ExperimentalFoundationApi::class) // Required for stickyHeader.
 @Composable
 fun ContactListScreen(contacts: List<Contact>, modifier: Modifier = Modifier) {
 
+    // Group contacts by the first letter of their name.
     val groupedContacts = contacts.groupBy { it.name.first().uppercaseChar() }
+    // State to control and observe the scroll position of the list.
     val listState = rememberLazyListState()
+    // Coroutine scope for launching the scroll animation.
     val coroutineScope = rememberCoroutineScope()
 
+    // State to determine if the "scroll to top" button should be visible.
     val showButton by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex > 10
@@ -88,12 +95,14 @@ fun ContactListScreen(contacts: List<Contact>, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
+            // Animate the button's appearance and disappearance.
             AnimatedVisibility(
                 visible = showButton,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 FloatingActionButton(onClick = {
+                    // Launch an animation to scroll the list to the top.
                     coroutineScope.launch {
                         listState.animateScrollToItem(index = 0)
                     }
@@ -106,12 +115,15 @@ fun ContactListScreen(contacts: List<Contact>, modifier: Modifier = Modifier) {
             }
         }
     ) { innerPadding ->
+        // Apply padding from Scaffold to avoid content overlapping with system bars.
         Box(modifier = Modifier.padding(innerPadding)) {
+            // LazyColumn efficiently displays the scrollable list.
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize()
             ) {
                 groupedContacts.forEach { (letter, contactsInGroup) ->
+                    // A header that sticks to the top as the user scrolls.
                     stickyHeader {
                         Text(
                             text = letter.toString(),
@@ -124,6 +136,7 @@ fun ContactListScreen(contacts: List<Contact>, modifier: Modifier = Modifier) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
+                    // Display the items for the current group.
                     itemsIndexed(contactsInGroup) { _, contact ->
                         Contact(contact = contact)
                     }
@@ -134,6 +147,7 @@ fun ContactListScreen(contacts: List<Contact>, modifier: Modifier = Modifier) {
 }
 
 
+// A composable for displaying a single contact item.
 @Composable
 fun Contact(contact: Contact, modifier: Modifier = Modifier) {
     Text(
@@ -146,6 +160,7 @@ fun Contact(contact: Contact, modifier: Modifier = Modifier) {
 }
 
 
+// Preview for the ContactListScreen.
 @Preview(showBackground = true)
 @Composable
 fun ContactListScreenPreview() {
